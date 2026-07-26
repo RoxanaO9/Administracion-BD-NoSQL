@@ -1,0 +1,18 @@
+┌─────────────────────────────────────────────────────────────────┐
+│  MongoDB Compass                                                │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │  Colecciones                                                ││
+│  │  ├── 📁 mixue_bingcheng_db                                 ││
+│  │  │   ├── 📄 carritos       ← Clave-Valor                   ││
+│  │  │   ├── 📄 pedidos        ← Documentos                    ││
+│  │  │   ├── 📄 personas       ← Grafos (nodos)                ││
+│  │  │   ├── 📄 relaciones     ← Grafos (aristas)              ││
+│  │  │   └── 📄 ventas         ← Columnas                      ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                 │
+│  📋 Documents   📊 Aggregations   ⚡ MongoSH                   │
+│                                                                 │
+│  Filtro: { "clave": "cliente001" }  ← Consultas simples        │
+│  Pipeline: [ { $group: ... } ]     ← Agregaciones              │
+└─────────────────────────────────────────────────────────────────┘
