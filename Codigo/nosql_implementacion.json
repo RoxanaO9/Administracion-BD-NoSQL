@@ -1,0 +1,345 @@
+// LITERAL 1. CREACIÓN DE LA BASE DE DATOS
+use mixue_bingcheng_db
+
+// Creación de las colecciones
+db.createCollection("carritos")
+db.createCollection("pedidos")
+db.createCollection("personas")
+db.createCollection("relaciones")
+db.createCollection("ventas")
+
+
+// LITERAL 2. MODELO CLAVE - VALOR
+
+// Inserción de los carritos de compra
+db.carritos.insertMany([
+  {
+    clave: "cliente001",
+    valor: {
+      nombre: "Maria",
+      productos: [
+        { producto: "Bubble Tea Mango", cantidad: 2, precio: 4 },
+        { producto: "Helado Mixue", cantidad: 1, precio: 2 }
+      ],
+      total: 10
+    }
+  },
+  {
+    clave: "cliente002",
+    valor: {
+      nombre: "Ana",
+      productos: [
+        { producto: "Bubble Tea Fresa", cantidad: 2, precio: 4 },
+        { producto: "Sundae Vainilla", cantidad: 1, precio: 3 }
+      ],
+      total: 11
+    }
+  },
+  {
+    clave: "cliente003",
+    valor: {
+      nombre: "Luis",
+      productos: [
+        { producto: "Helado Mixue", cantidad: 3, precio: 2 },
+        { producto: "Te de Durazno", cantidad: 2, precio: 3 }
+      ],
+      total: 12
+    }
+  },
+  {
+    clave: "cliente004",
+    valor: {
+      nombre: "Sofia",
+      productos: [
+        { producto: "Bubble Tea Chocolate", cantidad: 1, precio: 5 },
+        { producto: "Helado de Fresa", cantidad: 2, precio: 2 },
+        { producto: "Te de Limon", cantidad: 1, precio: 3 }
+      ],
+      total: 12
+    }
+  },
+  {
+    clave: "cliente005",
+    valor: {
+      nombre: "Javier",
+      productos: [
+        { producto: "Bubble Tea Oreo", cantidad: 2, precio: 5 },
+        { producto: "Cafe Frio", cantidad: 1, precio: 4 },
+        { producto: "Helado Mixue", cantidad: 1, precio: 2 }
+      ],
+      total: 16
+    }
+  }
+]);
+
+// Consulta de un carrito mediante su clave
+db.carritos.find({ clave: "cliente001" })
+
+// Eliminación de un carrito utilizando su clave
+db.carritos.deleteOne({ clave: "cliente002" })
+
+
+// LITERAL 3. MODELO ORIENTADO A DOCUMENTOS
+
+// Inserción de documentos complejos
+db.pedidos.insertMany([
+  {
+    cliente: {
+      nombre: "Maria",
+      telefono: "0991111111"
+    },
+    envio: {
+      tipo: "Domicilio",
+      direccion: "Quito Norte"
+    },
+    items: [
+      { producto: "Bubble Tea Mango", cantidad: 2, precio: 4 },
+      { producto: "Helado Mixue", cantidad: 1, precio: 2 }
+    ],
+    pago: "Tarjeta"
+  },
+  {
+    cliente: {
+      nombre: "Luis",
+      telefono: "0993333333"
+    },
+    envio: {
+      tipo: "Domicilio",
+      direccion: "Quito Sur"
+    },
+    items: [
+      { producto: "Helado Mixue", cantidad: 3, precio: 2 },
+      { producto: "Te de Durazno", cantidad: 2, precio: 3 }
+    ],
+    pago: "Transferencia"
+  },
+  {
+    cliente: {
+      nombre: "Sofia",
+      telefono: "0994444444"
+    },
+    envio: {
+      tipo: "Retiro en tienda",
+      sucursal: "Mixue Norte"
+    },
+    items: [
+      { producto: "Bubble Tea Chocolate", cantidad: 1, precio: 5 },
+      { producto: "Helado de Fresa", cantidad: 2, precio: 2 },
+      { producto: "Te de Limon", cantidad: 1, precio: 3 }
+    ],
+    pago: "Tarjeta"
+  },
+  {
+    cliente: {
+      nombre: "Javier",
+      telefono: "0995555555"
+    },
+    envio: {
+      tipo: "Domicilio",
+      direccion: "Quito Centro"
+    },
+    items: [
+      { producto: "Bubble Tea Oreo", cantidad: 2, precio: 5 },
+      { producto: "Cafe Frio", cantidad: 1, precio: 4 },
+      { producto: "Helado Mixue", cantidad: 1, precio: 2 }
+    ],
+    pago: "Efectivo"
+  }
+]);
+
+// Consulta de pedidos filtrando por el nombre del cliente
+db.pedidos.find({ "cliente.nombre": "Luis" })
+
+// Cálculo del total de cada pedido mediante Aggregate
+db.pedidos.aggregate([
+  {
+    $project: {
+      cliente: "$cliente.nombre",
+      total: {
+        $sum: {
+          $map: {
+            input: "$items",
+            as: "item",
+            in: {
+              $multiply: ["$$item.cantidad", "$$item.precio"]
+            }
+          }
+        }
+      }
+    }
+  }
+])
+
+
+// LITERAL 4. MODELO DE GRAFOS
+
+// Inserción de nodos (personas)
+db.personas.insertMany([
+  { _id: 1, nombre: "Maria", tipo: "Estudiante" },
+  { _id: 2, nombre: "Luis", tipo: "Estudiante" },
+  { _id: 3, nombre: "Sofia", tipo: "Estudiante" },
+  { _id: 4, nombre: "Profesor Carlos", tipo: "Docente" },
+  { _id: 5, nombre: "Profesora Andrea", tipo: "Docente" }
+])
+
+// Inserción de aristas (relaciones)
+db.relaciones.insertMany([
+  { origen: 1, destino: 2, tipo: "amistad" },
+  { origen: 1, destino: 4, tipo: "materia" },
+  { origen: 2, destino: 4, tipo: "materia" },
+  { origen: 3, destino: 5, tipo: "materia" },
+  { origen: 4, destino: 5, tipo: "colaboracion" }
+])
+
+// ===== CONSULTAS DE GRAFOS =====
+
+// Consulta 1: Amistades
+db.relaciones.find({ tipo: "amistad" })
+
+// Consulta 2: Materias
+db.relaciones.find({ tipo: "materia" })
+
+// Consulta 3: Colaboraciones
+db.relaciones.find({ tipo: "colaboracion" })
+
+// ===== CONSULTAS ADICIONALES PARA GRAFOS =====
+
+// Consulta 4: Red completa de Maria (estudiante 1)
+db.relaciones.find({
+  $or: [{ origen: 1 }, { destino: 1 }]
+})
+
+// Consulta 5: Consulta con JOIN (lookup) para ver nombres completos
+db.relaciones.aggregate([
+  {
+    $lookup: {
+      from: "personas",
+      localField: "origen",
+      foreignField: "_id",
+      as: "origen_info"
+    }
+  },
+  {
+    $lookup: {
+      from: "personas",
+      localField: "destino",
+      foreignField: "_id",
+      as: "destino_info"
+    }
+  },
+  {
+    $project: {
+      "origen_nombre": { $arrayElemAt: ["$origen_info.nombre", 0] },
+      "destino_nombre": { $arrayElemAt: ["$destino_info.nombre", 0] },
+      tipo: 1,
+      _id: 0
+    }
+  }
+])
+
+
+// LITERAL 5. MODELO DE COLUMNAS
+
+// Inserción de registros con familias de columnas
+db.ventas.insertMany([
+  {
+    cliente: { nombre: "Maria" },
+    producto: { nombre: "Bubble Tea Mango" },
+    venta: { cantidad: 2, precio: 4 }
+  },
+  {
+    cliente: { nombre: "Luis" },
+    producto: { nombre: "Helado Mixue" },
+    venta: { cantidad: 3, precio: 2 }
+  },
+  {
+    cliente: { nombre: "Javier" },
+    producto: { nombre: "Cafe Frio" },
+    venta: { cantidad: 2, precio: 4 }
+  }
+])
+
+// CONSULTAS DE COLUMNAS:
+
+// Consulta 1: Columnas específicas (producto y precio)
+db.ventas.find(
+  {},
+  {
+    _id: 0,
+    "producto.nombre": 1,
+    "venta.precio": 1
+  }
+)
+
+// Consulta 2: Ingresos por producto (ya la tienes)
+db.ventas.aggregate([
+  {
+    $group: {
+      _id: "$producto.nombre",
+      ingresos: {
+        $sum: {
+          $multiply: ["$venta.cantidad", "$venta.precio"]
+        }
+      }
+    }
+  }
+])
+
+// Consulta 3: Solo productos y cantidades
+db.ventas.find(
+  {},
+  {
+    _id: 0,
+    "producto.nombre": 1,
+    "venta.cantidad": 1
+  }
+)
+
+// Consulta 4: Ingresos por producto ordenados
+db.ventas.aggregate([
+  {
+    $group: {
+      _id: "$producto.nombre",
+      ingresos: {
+        $sum: {
+          $multiply: ["$venta.cantidad", "$venta.precio"]
+        }
+      }
+    }
+  },
+  {
+    $sort: { ingresos: -1 }
+  }
+])
+
+// Consulta 5: Gasto total por cliente
+db.ventas.aggregate([
+  {
+    $group: {
+      _id: "$cliente.nombre",
+      total_gastado: {
+        $sum: {
+          $multiply: ["$venta.cantidad", "$venta.precio"]
+        }
+      },
+      cantidad_compras: { $sum: 1 }
+    }
+  },
+  {
+    $sort: { total_gastado: -1 }
+  }
+])
+
+// Consulta 6: Promedio de ingreso por producto
+db.ventas.aggregate([
+  {
+    $group: {
+      _id: "$producto.nombre",
+      promedio_ingreso: {
+        $avg: {
+          $multiply: ["$venta.cantidad", "$venta.precio"]
+        }
+      }
+    }
+  }
+])
